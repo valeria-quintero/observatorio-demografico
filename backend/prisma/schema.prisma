@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Country {
+  cca3            String  @id @db.Char(3)
+  name            String
+  capital         String
+  continent       String
+  areaKm2         Float
+  density         Float
+  growthRate      Float
+  worldPercentage Float
+
+  populationRecords PopulationRecord[]
+
+  @@index([continent])
+}
+
+model PopulationRecord {
+  id          Int     @id @default(autoincrement())
+  countryCca3 String  @db.Char(3)
+  year        Int
+  population  BigInt
+
+  country Country @relation(fields: [countryCca3], references: [cca3], onDelete: Cascade)
+
+  @@unique([countryCca3, year])
+  @@index([year])
+}
