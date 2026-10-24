@@ -49,6 +49,7 @@ async function main() {
 main()
   .catch((e) => {
     console.error(e);
+    //0 es éxito, cualquier otro número es fallo
     process.exitCode = 1;
   })
   .finally(() => prisma.$disconnect()); // cierra la conexión para que el proceso termine
