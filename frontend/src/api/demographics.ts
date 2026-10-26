@@ -10,7 +10,7 @@ export async function request<T>(path: string): Promise<T> {
     return response.json() as Promise<T>
 }
 
-// Ruta relativa: el proxy de Vite la reenvía al backend
+//ruta relativa: se reenvía al backend
 export function getCountries() {
     return request<Country[]>('/api/demographics/countries')
 }

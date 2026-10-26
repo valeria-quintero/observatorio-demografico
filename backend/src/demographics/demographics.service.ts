@@ -6,19 +6,27 @@ import { Country } from '../generated/prisma/client.js';
 export class DemographicsService {
     constructor(private readonly prisma: PrismaService) {} 
 
-    async findCountries(search?: string, continent?: string): Promise<Country[]> {
-        return this.prisma.country.findMany({
+    async findCountries(search?: string, continent?: string): Promise<(Country & { population: number })[]> {
+        const countries = await this.prisma.country.findMany({
             where: {
-                // Si hay texto, busca en el nombre O en el código, sin distinguir mayúsculas
+                //si hay texto, busca en el nombre O en el código, sin distinguir mayúsculas
                 OR: search ? [
                         { name: { contains: search, mode: 'insensitive' } },
                         { cca3: { contains: search, mode: 'insensitive' } },
                     ] : undefined,
-                // Si no llega continente (o llega vacío), no se filtra
+                //si no llega continente o llega vacío, no se filtra
                 continent: continent || undefined,
             },
             orderBy: { name: 'asc' },
+            //solo el registro de 2022, para saber la población actual
+            include: { populationRecords: { where: { year: 2022 } } },
         });
+
+        //deja la población como un número simple en cada país
+        return countries.map(({ populationRecords, ...country }) => ({
+            ...country,
+            population: Number(populationRecords[0]?.population ?? 0),
+        }));
     }
 
     async historyCountries(countries: string[]): Promise<Record<string, number>[]> {

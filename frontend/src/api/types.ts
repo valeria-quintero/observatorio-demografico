@@ -6,5 +6,6 @@ export interface Country {
     areaKm2: number,
     density: number,
     growthRate: number,
-    worldPercentage: number
+    worldPercentage: number,
+    population: number
 }
