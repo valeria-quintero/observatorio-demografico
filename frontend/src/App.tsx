@@ -2,7 +2,7 @@ import TopCountriesTable from './components/NativeTable'
 import CountriesGrid from './components/CountriesGrid'
 import SelectedChips from './components/SelectedChips'
 import ChartsView from './components/ChartsView'
-import TabsNav from './components/TabsNav'
+import TabsNav, { tabButtonId, tabPanelId } from './components/TabsNav'
 import { useDemographicsStore } from './stores/use-demographics-store'
 
 function App() {
@@ -25,7 +25,12 @@ function App() {
 
       <TabsNav />
 
-      <div className="mt-6">
+      <div
+        className="mt-6"
+        role="tabpanel"
+        id={tabPanelId(activeTab)}
+        aria-labelledby={tabButtonId(activeTab)}
+      >
         {activeTab === 'table' && <TopCountriesTable />}
         {activeTab === 'ag-grid' && <CountriesGrid />}
         {activeTab === 'charts' && <ChartsView />}

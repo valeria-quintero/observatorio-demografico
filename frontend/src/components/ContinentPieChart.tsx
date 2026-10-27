@@ -43,7 +43,6 @@ const HighlightSector = (props: PieSectorShapeProps) => {
   return (
     <Sector
       {...props}
-      fill={seriesColor(props.index)}
       stroke="none"
       fillOpacity={isAnyActive && !isThisActive ? 0.5 : 1}
       style={{ transition: 'fill-opacity 0.3s ease' }}
@@ -53,6 +52,7 @@ const HighlightSector = (props: PieSectorShapeProps) => {
 
 export default function ContinentPieChart() {
   const { continentSummary, isLoading, error } = useContinentSummary()
+  const data = continentSummary?.map((item, i) => ({ ...item, fill: seriesColor(i) }))
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -69,10 +69,9 @@ export default function ContinentPieChart() {
         <ResponsiveContainer width="100%" height={360}>
           <PieChart>
             <Pie
-              data={continentSummary}
+              data={data}
               dataKey="population"
               nameKey="continent"
-              innerRadius="55%"
               outerRadius="90%"
               labelLine={false}
               label={renderCustomizedLabel}
