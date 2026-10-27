@@ -1,6 +1,7 @@
 import TopCountriesTable from './components/NativeTable'
 import CountriesGrid from './components/CountriesGrid'
 import SelectedChips from './components/SelectedChips'
+import ChartsView from './components/ChartsView'
 import TabsNav from './components/TabsNav'
 import { useDemographicsStore } from './stores/use-demographics-store'
 
@@ -27,11 +28,7 @@ function App() {
       <div className="mt-6">
         {activeTab === 'table' && <TopCountriesTable />}
         {activeTab === 'ag-grid' && <CountriesGrid />}
-        {activeTab === 'charts' && (
-          <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
-            Las gráficas llegan en el siguiente paso.
-          </p>
-        )}
+        {activeTab === 'charts' && <ChartsView />}
       </div>
     </main>
   )

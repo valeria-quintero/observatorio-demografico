@@ -15,3 +15,8 @@ export interface HistoryRow {
     year: number
     [cca3: string]: number
 }
+
+export interface ContinentSummary {
+    continent: string
+    population: number
+}

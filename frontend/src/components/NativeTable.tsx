@@ -1,7 +1,5 @@
 import { useCountries } from '../hooks/use-countries'
 
-const ROWS = 20
-
 const headerCell = 'px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500'
 
 function Placeholder({ className }: { className: string }) {
@@ -21,7 +19,7 @@ export default function TopCountriesTable() {
   //[...countries] hace una copia para no alterar la caché
   const top = [...(countries ?? [])]
     .sort((a, b) => b.population - a.population)
-    .slice(0, ROWS)
+    .slice(0, 20)
 
   const maxPopulation = top[0]?.population ?? 1
 
@@ -69,7 +67,7 @@ export default function TopCountriesTable() {
 
             <tbody className="divide-y divide-slate-100">
               {isLoading
-                ? Array.from({ length: ROWS }, (_, i) => (
+                ? Array.from({ length: 20 }, (_, i) => (
                     <tr key={i}>
                       <td className="px-6 py-4 text-slate-500">{i + 1}</td>
                       <td className="px-6 py-4"><Placeholder className="w-28" /></td>
@@ -101,7 +99,7 @@ export default function TopCountriesTable() {
                             {/* Barra proporcional al país más poblado */}
                             <span className="block h-1.5 w-36 rounded-full bg-slate-100">
                               <span
-                                className="block h-full rounded-full bg-sky-500"
+                                className="block h-full rounded-full bg-teal-400"
                                 style={{ width: `${(country.population / maxPopulation) * 100}%` }}
                               />
                             </span>

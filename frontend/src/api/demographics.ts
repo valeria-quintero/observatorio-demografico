@@ -1,4 +1,4 @@
-import type { Country, HistoryRow } from './types'
+import type { ContinentSummary, Country, HistoryRow } from './types'
 
 export async function request<T>(path: string): Promise<T> {
     const response = await fetch(path)
@@ -17,4 +17,8 @@ export function getCountries() {
 
 export function getHistory(countries: string[]) {
     return request<HistoryRow[]>(`/api/demographics/history?countries=${countries.join(',')}`)
+}
+
+export function getContinentSummary() {
+    return request<ContinentSummary[]>('/api/demographics/continent-summary')
 }

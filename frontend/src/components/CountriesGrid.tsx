@@ -22,7 +22,7 @@ const theme = themeQuartz.withParams({
   backgroundColor: '#ffffff',
   foregroundColor: '#0f172a',
   borderColor: '#e2e8f0',
-  headerBackgroundColor: '#f8fafc',
+  headerBackgroundColor: '#e6d2e1',
   headerTextColor: '#64748b',
   headerFontSize: 11,
   headerFontWeight: 600,
