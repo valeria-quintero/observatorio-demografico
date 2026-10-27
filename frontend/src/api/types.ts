@@ -9,3 +9,9 @@ export interface Country {
     worldPercentage: number,
     population: number
 }
+
+// Una fila por año: { year: 2020, MEX: 125998302, USA: 335942003 }
+export interface HistoryRow {
+    year: number
+    [cca3: string]: number
+}

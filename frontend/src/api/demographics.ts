@@ -1,4 +1,4 @@
-import type { Country } from './types'
+import type { Country, HistoryRow } from './types'
 
 export async function request<T>(path: string): Promise<T> {
     const response = await fetch(path)
@@ -13,4 +13,8 @@ export async function request<T>(path: string): Promise<T> {
 //ruta relativa: se reenvía al backend
 export function getCountries() {
     return request<Country[]>('/api/demographics/countries')
+}
+
+export function getHistory(countries: string[]) {
+    return request<HistoryRow[]>(`/api/demographics/history?countries=${countries.join(',')}`)
 }

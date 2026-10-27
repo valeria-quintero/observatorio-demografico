@@ -5,7 +5,6 @@ export function useCountries() {
     const query = useQuery({
         queryKey: ['countries'],
         queryFn: getCountries,
-        // Los datos casi no cambian: no hace falta volver a pedirlos
         staleTime: Infinity,
     })
 
