@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AgGridReact } from 'ag-grid-react'
 import {
   AllCommunityModule,
@@ -13,10 +13,12 @@ import { useCountries } from '../hooks/use-countries'
 import { useDemographicsStore } from '../stores/use-demographics-store'
 import type { Country } from '../api/types'
 
+//"enciende" las piezas empleadas de AG Grid
 ModuleRegistry.registerModules([AllCommunityModule])
 
+//colores y tamaños de la tabla
 const theme = themeQuartz.withParams({
-  accentColor: '#2563eb',
+  accentColor: '#e77db7',
   backgroundColor: '#ffffff',
   foregroundColor: '#0f172a',
   borderColor: '#e2e8f0',
@@ -39,14 +41,15 @@ const rowSelection: RowSelectionOptions = {
   enableClickSelection: false,
 }
 
-const fmt = (v: number) => v.toLocaleString('en-US')
+//pone comas en los miles
+const formatNumber = (v: number) => v.toLocaleString('es-MX')
 
-function PinnedHeader({ displayName }: { displayName: string }) {
-  return (
-    <span className="flex w-full items-center justify-between gap-2 pr-1">
-      <span className="uppercase tracking-wider">{displayName}</span>
-    </span>
-  )
+//identificación de cada fila
+const getRowId = (params: { data: Country }) => params.data.cca3
+
+const numberColumn: ColDef<Country> = {
+  filter: 'agNumberColumnFilter',
+  cellClass: 'text-right',
 }
 
 const columnDefs: ColDef<Country>[] = [
@@ -55,65 +58,59 @@ const columnDefs: ColDef<Country>[] = [
     headerName: 'País',
     pinned: 'left',
     width: 260,
-    filter: 'agTextColumnFilter',
     floatingFilter: false,
-    headerComponent: PinnedHeader,
     cellClass: 'font-medium',
+    sort: 'asc',
   },
   {
     field: 'cca3',
-    headerName: 'Cód.',
-    width: 100,
+    headerName: 'Código',
+    width: 130,
     cellClass: 'font-mono text-xs text-slate-500',
-    filter: 'agTextColumnFilter',
   },
-  { field: 'capital', headerName: 'Capital', width: 200, filter: 'agTextColumnFilter' },
-  { field: 'continent', headerName: 'Continente', width: 170, filter: 'agTextColumnFilter' },
+  { 
+    field: 'capital', 
+    headerName: 'Capital', 
+    width: 200 
+  },
+  { 
+    field: 'continent', 
+    headerName: 'Continente', 
+    width: 180 
+  },
   {
     field: 'areaKm2',
     headerName: 'Área km²',
-    type: 'rightAligned',
+    ...numberColumn,
     width: 160,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (p) => fmt(p.value),
-    sort: 'desc',
-    sortIndex: 0,
+    valueFormatter: (params) => formatNumber(params.value),
   },
   {
     field: 'density',
     headerName: 'Densidad',
-    type: 'rightAligned',
-    width: 150,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (p) => fmt(p.value),
+    ...numberColumn,
+    width: 160,
+    valueFormatter: (params) => formatNumber(params.value),
   },
   {
     field: 'growthRate',
-    headerName: 'Crecim.',
-    type: 'rightAligned',
-    width: 140,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (p) => Number(p.value).toFixed(4),
-  },
-  {
-    field: 'population',
-    headerName: 'Población',
-    type: 'rightAligned',
-    width: 160,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (p) => fmt(p.value),
+    headerName: 'Crecimiento',
+    ...numberColumn,
+    width: 190,
+    valueFormatter: (params) => Number(params.value).toFixed(4),
   },
   {
     field: 'worldPercentage',
     headerName: '% Mundial',
-    type: 'rightAligned',
-    width: 140,
-    filter: 'agNumberColumnFilter',
-    valueFormatter: (p) => `${Number(p.value).toFixed(2)}%`,
+    ...numberColumn,
+    width: 160,
+    valueFormatter: (params) => `${Number(params.value).toFixed(2)}%`,
   },
 ]
 
 const defaultColDef: ColDef<Country> = {
+  filter: 'agTextColumnFilter',
+  headerClass: 'uppercase tracking-wider',
   sortable: true,
   resizable: true,
   floatingFilter: true,
@@ -127,14 +124,11 @@ export default function CountriesGrid() {
 
   const apiRef = useRef<GridApi<Country> | null>(null)
   const [search, setSearch] = useState('')
-  const [visibleRows, setVisibleRows] = useState(0)
 
-  const total = countries?.length ?? 0
+  const totalCountries = countries?.length ?? 0
 
-  // Evita que los cambios hechos al sincronizar vuelvan a escribirse en el store
   const syncing = useRef(false)
 
-  // Pinta en la tabla lo que dice el store (carga inicial y chips quitados desde fuera)
   const syncGridToStore = useCallback((api: GridApi<Country>, codes: string[]) => {
     syncing.current = true
     api.forEachNode((node) => {
@@ -152,23 +146,18 @@ export default function CountriesGrid() {
     apiRef.current = e.api
   }
 
-  // Conserva el orden en que el usuario fue marcando países (define el color de cada serie)
   const onSelectionChanged = () => {
     const api = apiRef.current
     if (!api || syncing.current) return
     const inGrid = new Set(api.getSelectedRows().map((c) => c.cca3))
-    const next = [
+    const newSelection = [
       ...selected.filter((c) => inGrid.has(c)),
       ...[...inGrid].filter((c) => !selected.includes(c)),
     ]
-    if (next.length !== selected.length || next.some((c, i) => c !== selected[i])) {
-      setSelection(next)
+    if (newSelection.length !== selected.length || newSelection.some((c, i) => c !== selected[i])) {
+      setSelection(newSelection)
     }
   }
-
-  const updateVisible = () => setVisibleRows(apiRef.current?.getDisplayedRowCount() ?? 0)
-
-  const getRowId = useMemo(() => (p: { data: Country }) => p.data.cca3, [])
 
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -176,7 +165,7 @@ export default function CountriesGrid() {
         <div>
           <h2 className="text-lg font-bold text-slate-900">Explorador de países</h2>
           <p className="text-sm text-slate-500">
-            {total} países · marca las casillas para compararlos en Gráficas
+            {totalCountries} países · marca las casillas para compararlos en Gráficas
           </p>
         </div>
 
@@ -213,25 +202,14 @@ export default function CountriesGrid() {
             headerHeight={44}
             floatingFiltersHeight={48}
             onGridReady={onGridReady}
-            onFirstDataRendered={(e) => {
-              syncGridToStore(e.api, selected)
-              updateVisible()
-            }}
+            onFirstDataRendered={(e) => syncGridToStore(e.api, selected)}
             onSelectionChanged={onSelectionChanged}
-            onFilterChanged={updateVisible}
-            onModelUpdated={updateVisible}
           />
         </div>
       )}
 
-      <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 bg-slate-50 px-6 py-3 text-xs text-slate-500">
-        <span>
-          <strong className="text-slate-900">{selected.length}</strong> seleccionados ·{' '}
-          {visibleRows} de {total} filas visibles
-        </span>
-        <code className="font-mono text-slate-600">
-          selectedCountries: [{selected.map((c) => `'${c}'`).join(', ')}]
-        </code>
+      <footer className="border-t border-slate-200 bg-slate-50 px-6 py-3 text-xs text-slate-500">
+        <strong className="text-slate-900">{selected.length}</strong> seleccionados
       </footer>
     </section>
   )

@@ -1,18 +1,11 @@
-import { useState } from 'react'
 import TopCountriesTable from './components/NativeTable'
 import CountriesGrid from './components/CountriesGrid'
 import SelectedChips from './components/SelectedChips'
-
-const TABS = [
-  { id: 'native', label: 'Tabla nativa' },
-  { id: 'ag-grid', label: 'AG Grid' },
-  { id: 'charts', label: 'Gráficas' },
-] as const
-
-type TabId = (typeof TABS)[number]['id']
+import TabsNav from './components/TabsNav'
+import { useDemographicsStore } from './stores/use-demographics-store'
 
 function App() {
-  const [activeTab, setActiveTab] = useState<TabId>('ag-grid')
+  const activeTab = useDemographicsStore((s) => s.activeTab)
 
   return (
     <main className="mx-auto min-h-screen max-w-[1400px] bg-slate-50 px-5 py-5">
@@ -25,35 +18,14 @@ function App() {
             Observatorio Demográfico Global
           </h1>
         </div>
-        <SelectedChips />
+        {/* La tabla nativa no usa la selección, por eso no se muestran los chips ahí */}
+        {activeTab !== 'table' && <SelectedChips />}
       </header>
 
-      <div className="mt-6 flex items-end justify-between border-b border-slate-200">
-        <nav className="flex gap-1" role="tablist">
-          {TABS.map((tab) => {
-            const active = tab.id === activeTab
-            return (
-              <button
-                key={tab.id}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setActiveTab(tab.id)}
-                className={`-mb-px border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-                  active
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {tab.label}
-              </button>
-            )
-          })}
-        </nav>
-        <code className="pb-3 font-mono text-xs text-slate-500">activeTab: '{activeTab}'</code>
-      </div>
+      <TabsNav />
 
       <div className="mt-6">
-        {activeTab === 'native' && <TopCountriesTable />}
+        {activeTab === 'table' && <TopCountriesTable />}
         {activeTab === 'ag-grid' && <CountriesGrid />}
         {activeTab === 'charts' && (
           <p className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">

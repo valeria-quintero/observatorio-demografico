@@ -3,7 +3,7 @@ import { useDemographicsStore } from '../stores/use-demographics-store'
 
 export default function SelectedChips() {
   const selected = useDemographicsStore((s) => s.selectedCountries)
-  const setSelection = useDemographicsStore((s) => s.setSelection)
+  const toggleCountrySelection = useDemographicsStore((s) => s.toggleCountrySelection)
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500">
@@ -18,7 +18,7 @@ export default function SelectedChips() {
           <button
             type="button"
             aria-label={`Quitar ${code}`}
-            onClick={() => setSelection(selected.filter((c) => c !== code))}
+            onClick={() => toggleCountrySelection(code)}
             className="flex size-5 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
           >
             ×
